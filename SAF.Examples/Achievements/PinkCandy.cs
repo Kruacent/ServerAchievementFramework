@@ -31,7 +31,7 @@ namespace SAF.Examples.Achievements
         {
             if (ev.DamageHandler.Type == Exiled.API.Enums.DamageType.Explosion && ev.DamageHandler.IsSuicide)
             {
-                Achievement.GiveAchievement(this, ev.Attacker);
+                Achievement.Instance.GiveAchievement(this, ev.Attacker);
             }
 
         }

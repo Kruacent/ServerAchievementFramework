@@ -29,8 +29,8 @@ namespace SAF.Examples.Achievements
         {
             if( ev.Scp106.CurrentRoom.AreLightsOff && ev.Player.CurrentRoom.AreLightsOff)
             {
-                Achievement.GiveAchievement(this, ev.Scp106);
-                Achievement.GiveAchievement(this, ev.Player);
+                Achievement.Instance.GiveAchievement(this, ev.Scp106);
+                Achievement.Instance.GiveAchievement(this, ev.Player);
             }
 
         }
