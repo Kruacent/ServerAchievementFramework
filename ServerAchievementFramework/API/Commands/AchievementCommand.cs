@@ -25,7 +25,12 @@ namespace ServerAchievementFramework.API.Commands
             {
                 if(AchievementFeature.Instance.AchievementPlayer.TryGetValue(achievement, out List<Player> players))
                 {
-                    response += $"{achievement.Name} - {achievement.Description}";
+                    if(achievement.IsHidden){
+                        response += "HIDDEN ACHIEVEMENT - Unlock it to know more about it";
+                    }else{
+                        response += $"{achievement.Name} - {achievement.Description}";
+                    }
+                    
                     if (players.Contains(player))
                     {
                         response += "[UNLOCKED] ";
@@ -35,7 +40,6 @@ namespace ServerAchievementFramework.API.Commands
                         response += "[LOCKED]";
                     }
                     response += "\n";
-
                 }
                 else
                 {

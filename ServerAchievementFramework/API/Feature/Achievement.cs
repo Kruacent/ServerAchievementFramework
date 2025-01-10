@@ -17,7 +17,7 @@ namespace ServerAchievementFramework.API.Feature
             Log.Debug($"registering achievement {achievement.Name}");
             if(Achievements.Contains(achievement))
             {
-                Log.Warn($"achievement {achievement.Name} already exists, overwriting");
+                Log.Warn($"achievement {achievement.Name} already exists");
             }
             else
             {
