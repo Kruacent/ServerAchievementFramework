@@ -10,6 +10,13 @@ namespace ServerAchievementFramework
     public class Config : IConfig
     {
         public bool IsEnabled { get; set; } = true;
-        public bool Debug { get; set; } = false;
+        public bool Debug { get; set; } = true;
+
+        public string ServerHostName { get; set; } = "localhost";
+        public ushort ServerPort { get; set; } = 3306;
+        public string User { get; set; } = "SAFUser";
+        public string DBName { get; set; } = "SAFSql";
+        public string Password { get; set; } = "gexiled69";
+
     }
 }
