@@ -1,14 +1,14 @@
 ﻿
 using CommandSystem;
 using Exiled.API.Features;
-using AchievementFeature = ServerAchievementFramework.API.Feature.Achievement;
+using AchievementFeature = ServerAchievementFramework.API.Feature.AchievementController;
 using System;
 using System.Collections.Generic;
 using ServerAchievementFramework.API.Interface;
 
 namespace ServerAchievementFramework.API.Commands
 {
-
+    [CommandHandler(typeof(ClientCommandHandler))]
     public class AchievementCommand : ICommand
     {
         public string Command { get; } = "achievement";
@@ -18,33 +18,25 @@ namespace ServerAchievementFramework.API.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             Player player = Player.Get((CommandSender)sender);
-            response = "Achievement list:\n";
+            response = "Achievements list:\n";
             if(player == null)
                 return false;
-            foreach (IAchievement achievement in AchievementFeature.Instance.Achievements)
+            foreach (var kv in AchievementFeature.AchievementPlayer)
             {
-                if(AchievementFeature.Instance.AchievementPlayer.TryGetValue(achievement, out List<Player> players))
-                {
-                    if(achievement.IsHidden){
-                        response += "HIDDEN ACHIEVEMENT - Unlock it to know more about it";
-                    }else{
-                        response += $"{achievement.Name} - {achievement.Description}";
-                    }
-                    
-                    if (players.Contains(player))
-                    {
-                        response += "[UNLOCKED] ";
-                    }
-                    else
-                    {
-                        response += "[LOCKED]";
-                    }
-                    response += "\n";
-                }
+                IAchievement achievement = kv.Key;
+                bool locked = !kv.Value.Contains(player);
+
+                if(achievement.IsHidden && locked)
+                    response += "HIDDEN ACHIEVEMENT - Unlock it to know more about it";
                 else
-                {
-                    Log.Error("uh something wrong happened");
-                }
+                    response += $"{achievement.Name} - {achievement.Description}";
+                    
+                if (locked)
+                    response += " [LOCKED]";
+                else
+                    response += " [UNLOCKED]";
+
+                response += "\n";
             }
             return true;
         }
