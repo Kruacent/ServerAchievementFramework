@@ -5,10 +5,18 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ExMod.Exiled" Version="9.2.2" />
+		<PackageReference Include="ExMod.Exiled" Version="9.4.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\ServerAchievementFramework\ServerAchievementFramework.csproj" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<Reference Include="Assembly-CSharp-firstpass" HintPath="$(EXILED_REFERENCES)\Assembly-CSharp-firstpass.dll" />
+		<Reference Include="Mirror" HintPath="$(EXILED_REFERENCES)\Mirror.dll" />
+		<Reference Include="UnityEngine" HintPath="$(EXILED_REFERENCES)\UnityEngine.dll" />
+		<Reference Include="UnityEngine.CoreModule" HintPath="$(EXILED_REFERENCES)\UnityEngine.CoreModule.dll" />
+		<Reference Include="UnityEngine.PhysicsModule" HintPath="$(EXILED_REFERENCES)\UnityEngine.PhysicsModule.dll" />
 	</ItemGroup>
 </Project>

@@ -12,7 +12,7 @@ namespace SAF.Examples.Achievements
     public class DarkPlace : IAchievement, IEventAchievement
     {
         public string Name => "Dark Place";
-        public string Description => "As SCP-106 or the human targeted, warp someone to your dimension while you're both in a blackouted room";
+        public string Description => "As a human , be warped in the Pocket dimension while you & SCP-106 both are in a blackouted room";
         public bool IsHidden => false;
 
         public void SubscribeEvent()
@@ -27,10 +27,9 @@ namespace SAF.Examples.Achievements
 
         public void OnEnteringPocketDimension(EnteringPocketDimensionEventArgs ev)
         {
-            if( ev.Scp106.CurrentRoom.AreLightsOff && ev.Player.CurrentRoom.AreLightsOff)
+            if (ev.Scp106.CurrentRoom.AreLightsOff && ev.Player.CurrentRoom.AreLightsOff)
             {
-                Achievement.Instance.GiveAchievement(this, ev.Scp106);
-                Achievement.Instance.GiveAchievement(this, ev.Player);
+                AchievementController.Instance.GiveAchievement(this, ev.Player);
             }
 
         }

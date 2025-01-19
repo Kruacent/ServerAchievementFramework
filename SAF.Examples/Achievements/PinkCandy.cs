@@ -20,7 +20,8 @@ namespace SAF.Examples.Achievements
 
         public void SubscribeEvent()
         {
-            Exiled.Events.Handlers.Player.Dying += OnDying;        }
+            Exiled.Events.Handlers.Player.Dying += OnDying;
+        }
 
         public void UnsubscribeEvent()
         {
@@ -31,7 +32,7 @@ namespace SAF.Examples.Achievements
         {
             if (ev.DamageHandler.Type == Exiled.API.Enums.DamageType.Explosion && ev.DamageHandler.IsSuicide)
             {
-                Achievement.Instance.GiveAchievement(this, ev.Attacker);
+                AchievementController.Instance.GiveAchievement(this, ev.Attacker);
             }
 
         }
