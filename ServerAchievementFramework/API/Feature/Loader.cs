@@ -9,13 +9,10 @@ using System.Threading.Tasks;
 
 namespace ServerAchievementFramework.API.Feature
 {
-    internal class Loader
+    internal static class Loader
     {
-        internal List<IPlugin<IConfig>> ActivePlugins => new List<IPlugin<IConfig>>();
-        internal static Loader Instance { get; private set; } = new Loader();
-
-        private Loader() { }
-        internal void Load()
+        internal static List<IPlugin<IConfig>> ActivePlugins => new List<IPlugin<IConfig>>();
+        internal static void Load()
         {
             foreach (IPlugin<IConfig> plugin in Exiled.Loader.Loader.Plugins.Where(pl => pl.Name != MainPlugin.Instance.Name))
             {
@@ -23,11 +20,12 @@ namespace ServerAchievementFramework.API.Feature
                 {
                     try
                     {
-                        if (type.IsSubclassOf(typeof(IAchievement)))
+                        if (typeof(IAchievement).IsAssignableFrom(type))
                         {
+                            Log.Debug("adding plugin " + type.Name);
                             ActivePlugins.Add(plugin);
                             IAchievement ac = Activator.CreateInstance(type) as IAchievement;
-                            Achievement.Instance.Register(ac);
+                            AchievementController.Register(ac);
                         }
                     }
                     catch (System.Exception e)
