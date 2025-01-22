@@ -18,25 +18,29 @@ namespace ServerAchievementFramework.API.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             Player player = Player.Get((CommandSender)sender);
-            response = "Achievements list:\n";
+            response = "<color=#0000ff>Achievements list:</color>\n";
             if(player == null)
                 return false;
+            
+            int i = 0;
             foreach (var kv in AchievementFeature.AchievementPlayer)
             {
+                
                 IAchievement achievement = kv.Key;
                 bool locked = !kv.Value.Contains(player);
-
-                if(achievement.IsHidden && locked)
-                    response += "HIDDEN ACHIEVEMENT - Unlock it to know more about it";
+                response += $"<color={(locked ? (i%2==0 ? "#800000" : "#b30000") : (i%2==0 ? "green" : "#00b300"))}>";
+                if (achievement.IsHidden && locked)
+                    response += "[HIDDEN ACHIEVEMENT] - Unlock it to know more about it";
                 else
-                    response += $"{achievement.Name} - {achievement.Description}";
+                    response += $"[{achievement.Name}] - {achievement.Description}";
                     
                 if (locked)
-                    response += " [LOCKED]";
+                    response += " (LOCKED)";
                 else
-                    response += " [UNLOCKED]";
+                    response += " (UNLOCKED)";
 
-                response += "\n";
+                response += "</color>\n\n";
+                i++;
             }
             return true;
         }
