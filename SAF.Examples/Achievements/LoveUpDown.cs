@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utils.NonAllocLINQ;
 
 namespace SAF.Examples.Achievements
 {
@@ -32,9 +33,12 @@ namespace SAF.Examples.Achievements
 
         public void OnInteractingElevator(InteractingElevatorEventArgs ev)
         {
-            if(ev.IsCalledFromInside)
+            if (ev.IsCalledFromInside)
+            {
                 Counter[ev.Player].Add(ev.Lift);
-            if(Counter[ev.Player].All(Lift.List.Contains))
+            }
+
+            if (Lift.List.All(v => Counter[ev.Player].Contains(v)))
                 AchievementController.Instance.GiveAchievement(this,ev.Player);
         }
         public void OnVerified(VerifiedEventArgs ev) 
