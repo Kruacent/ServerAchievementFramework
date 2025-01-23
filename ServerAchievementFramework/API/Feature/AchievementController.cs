@@ -45,7 +45,14 @@ namespace ServerAchievementFramework.API.Feature
                     Log.Warn($"player {player.Nickname} ({player.UserId}) already has the achievement {achievement.Name}");
                     return;
                 }
-                Database.Instance.AddAchievement(player,achievement);
+                try
+                {
+                    Database.Instance.AddAchievement(player, achievement);
+                }
+                catch (Exception)
+                {
+                    Log.Warn("Error while adding the record to the db ; the database is probably off");
+                }
                 players.Add(player);
                 Show(achievement, player);
             }

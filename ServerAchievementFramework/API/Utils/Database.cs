@@ -39,6 +39,7 @@ namespace ServerAchievementFramework.API.Utils
                 {
                     MSConnection = new MySqlConnection(DBConnect);
                     MSConnection.Open();
+                    
 
                 }
                 return MSConnection;
