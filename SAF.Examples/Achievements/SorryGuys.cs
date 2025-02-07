@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace SAF.Examples.Achievements
 {
-    public class SorryGuys : IAchievement, IEventAchievement
+    public class SorryGuys : Achievement, IEventAchievement
     {
-        public string Name => "Sorry Guys...";
-        public string Description => "Respawn alone";
-        public bool IsHidden => false;
+        public override string Name => "Sorry Guys...";
+        public override string Description => "Respawn alone";
+        public override bool IsHidden => false;
 
         public void SubscribeEvent()
         {
@@ -31,7 +31,7 @@ namespace SAF.Examples.Achievements
         {
             if (ev.Players.Count == 1)
             {
-                AchievementController.Instance.GiveAchievement(this, ev.Players[0]);
+                GiveAchievement(ev.Players.First());
             }
                 
         }

@@ -12,11 +12,11 @@ using Exiled.Events.EventArgs.Warhead;
 
 namespace SAF.Examples.Achievements
 {
-    public class PinkCandy : IAchievement, IEventAchievement
+    public class PinkCandy : Achievement, IEventAchievement
     {
-        public string Name => "Kaboom? Kaboom";
-        public string Description => "Explose yourself now!";
-        public bool IsHidden => false;
+        public override string Name => "Kaboom? Kaboom";
+        public override string Description => "Explose yourself now!";
+        public override bool IsHidden => false;
 
         public void SubscribeEvent()
         {
@@ -32,7 +32,7 @@ namespace SAF.Examples.Achievements
         {
             if (ev.DamageHandler.Type == Exiled.API.Enums.DamageType.Explosion && ev.DamageHandler.IsSuicide)
             {
-                AchievementController.Instance.GiveAchievement(this, ev.Attacker);
+                GiveAchievement(ev.Attacker);
             }
 
         }

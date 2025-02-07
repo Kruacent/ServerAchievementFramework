@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace SAF.Examples.Achievements
 {
-    public class FuckYouGuys : IAchievement, IEventAchievement
+    public class FuckYouGuys : Achievement, IEventAchievement
     {
-        public string Name => "Fuck You Guys";
-        public string Description => "Respawn alone at ALL respawns in the round until the deadman switch";
-        public bool IsHidden => true;
+        public override string Name => "Fuck You Guys";
+        public override string Description => "Respawn alone at ALL respawns in the round until the deadman switch";
+        public override bool IsHidden => true;
         public List<Player> Counter = Player.List.ToList();
 
         public void SubscribeEvent()
@@ -35,7 +35,7 @@ namespace SAF.Examples.Achievements
             {
                 Counter.ForEach(p =>
                 {
-                    AchievementController.Instance.GiveAchievement(this,p);
+                    GiveAchievement(p);
                 });
             }
         }

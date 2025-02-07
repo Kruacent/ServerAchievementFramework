@@ -11,11 +11,11 @@ using Utils.NonAllocLINQ;
 
 namespace SAF.Examples.Achievements
 {
-    public class LoveUpDown : IAchievement, IEventAchievement
+    public class LoveUpDown : Achievement, IEventAchievement
     {
-        public string Name => "I love when you go up and down baby";
-        public string Description => "As any class, activate all elevator from the inside at least once in the round";
-        public bool IsHidden => false;
+        public override string Name => "I love when you go up and down baby";
+        public override string Description => "As any class, activate all elevator from the inside at least once in the round";
+        public override bool IsHidden => false;
 
         public Dictionary<Player, HashSet<Lift>> Counter = Player.List.ToDictionary(x => x, x => new HashSet<Lift>());
 
@@ -39,7 +39,7 @@ namespace SAF.Examples.Achievements
             }
 
             if (Lift.List.All(v => Counter[ev.Player].Contains(v)))
-                AchievementController.Instance.GiveAchievement(this,ev.Player);
+                GiveAchievement(ev.Player);
         }
         public void OnVerified(VerifiedEventArgs ev) 
         {

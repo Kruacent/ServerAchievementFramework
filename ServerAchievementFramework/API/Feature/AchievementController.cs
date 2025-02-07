@@ -35,7 +35,7 @@ namespace ServerAchievementFramework.API.Feature
         }
 
 
-        public void GiveAchievement(IAchievement achievement, Player player)
+        internal void GiveAchievement(IAchievement achievement, Player player)
         {
             Log.Debug($"trying giving achievement {achievement.Name} to the player {player.Nickname} ({player.UserId})");
             if(AchievementPlayer.TryGetValue(achievement, out List<Player> players))

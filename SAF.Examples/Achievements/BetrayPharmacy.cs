@@ -14,11 +14,11 @@ using System.Threading.Tasks;
 
 namespace SAF.Examples.Achievements
 {
-    public class BetrayPharmacy : IAchievement, IEventAchievement
+    public class BetrayPharmacy : Achievement, IEventAchievement
     {
-        public string Name => "Betray pills? More like Betray pharmacy";
-        public string Description => "Be all of the role in game (Guard,Scientist,Class-D,NTF,Chaos) in one life";
-        public bool IsHidden => false;
+        public override string Name => "Betray pills? More like Betray pharmacy";
+        public override string Description => "Be all of the role in game (Guard,Scientist,Class-D,NTF,Chaos) in one life";
+        public override bool IsHidden => false;
         private string[] roles = { "Guard", "Scientist","ClassD","NTF","Chaos" };
         private Dictionary<Player,HashSet<string>> _roles = new Dictionary<Player, HashSet<string>>();
         
@@ -93,7 +93,7 @@ namespace SAF.Examples.Achievements
             Log.Debug($"did {value.Count} roles ");
             if(value.Count == 5)
             {
-                AchievementController.Instance.GiveAchievement(this, p);
+                GiveAchievement(p);
             }
         }
     }

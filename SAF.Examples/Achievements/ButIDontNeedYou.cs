@@ -12,11 +12,11 @@ using System.Threading.Tasks;
 
 namespace SAF.Examples.Achievements
 {
-    public class ButIDontNeedYou : IAchievement, IEventAchievement
+    public class ButIDontNeedYou : Achievement, IEventAchievement
     {
-        public string Name => "...but I don't need you";
-        public string Description => "Be the sole human on surface when the deadman explode";
-        public bool IsHidden => false;
+        public override string Name => "...but I don't need you";
+        public override string Description => "Be the sole human on surface when the deadman explode";
+        public override bool IsHidden => false;
 
         public void SubscribeEvent()
         {
@@ -35,7 +35,7 @@ namespace SAF.Examples.Achievements
                 var aliveHumans = Player.List.Where(p => p.IsAlive && p.IsHuman).ToList();
                 if (aliveHumans.Count() == 1)
                 {
-                    AchievementController.Instance.GiveAchievement(this, aliveHumans[0]);
+                    GiveAchievement(aliveHumans.First());
                 }
             }
         }

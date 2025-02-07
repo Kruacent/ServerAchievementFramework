@@ -14,11 +14,11 @@ namespace SAF.Examples.Achievements
 {
     internal class ActualKGBAgent
     {
-        public class PinkCandy : IAchievement, IEventAchievement
+        public class PinkCandy : Achievement, IEventAchievement
         {
-            public string Name => "Holy hell, Actual KGB Agent";
-            public string Description => "Stay around a SCP for 3 min in a row without dying";
-            public bool IsHidden => false;
+            public override string Name => "Holy hell, Actual KGB Agent";
+            public override string Description => "Stay around a SCP for 3 min in a row without dying";
+            public override bool IsHidden => false;
             public float RefreshRate => 1f;
             public float RadiusToCheck = 5f;
             private Dictionary<Player, uint> time = new Dictionary<Player, uint>();
@@ -62,7 +62,7 @@ namespace SAF.Examples.Achievements
                                 time[h] = 0;
 
                             if (time[h] >= 180)
-                                AchievementController.Instance.GiveAchievement(this, h);
+                                GiveAchievement(h);
                         });
                     });
 
