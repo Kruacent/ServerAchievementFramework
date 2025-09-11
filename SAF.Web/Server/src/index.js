@@ -5,7 +5,9 @@ import cors from 'cors';
 import path from 'path';
 
 import achievementEndpoint from '../src/api/v1/Achievement.js';
-
+import playerEndpoint from '../src/api/v1/Players.js';
+import achievementCategoryEndpoint from '../src/api/v1/AchievementCategory.js';
+import statsEndpoint from '../src/api/v1/Stats.js';
 
 // Load environment variables from .env file
 dotenv.config({ path: path.resolve('../.env') });
@@ -59,7 +61,9 @@ app.use((req, res, next) => {
  * - Achievements routes
  */
 app.use('/v1/achievement/', achievementEndpoint);
-
+app.use('/v1/achievement-category/', achievementCategoryEndpoint);
+app.use('/v1/players/', playerEndpoint);
+app.use('/v1/stats/', statsEndpoint);
 
 /**
  * Start the server and log connection details
