@@ -20,17 +20,18 @@ namespace ServerAchievementFramework.API.Feature
                 {
                     try
                     {
-                        if (typeof(IAchievement).IsAssignableFrom(type))
+                        if (type.IsSubclassOf(typeof(Achievement)))
                         {
                             Log.Debug("adding plugin " + type.Name);
                             ActivePlugins.Add(plugin);
-                            IAchievement ac = Activator.CreateInstance(type) as IAchievement;
-                            AchievementController.Register(ac);
+                            Achievement ac = Activator.CreateInstance(type) as Achievement;
+                            ac.PrefixPlugin = plugin.Prefix;
+                            Achievement.Register(ac);
                         }
                     }
                     catch (System.Exception e)
                     {
-                        Log.Error($"Error registering in plugin {plugin.Name} : {e.Message}");
+                        Log.Error($"Error registering in plugin {plugin.Name},{type.Name}  : {e.Message}");
                     }
                 }
             }

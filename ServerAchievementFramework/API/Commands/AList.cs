@@ -1,8 +1,10 @@
 ﻿using CommandSystem;
 using Exiled.API.Features;
+using Exiled.API.Features.Pools;
+using ServerAchievementFramework.API.Feature;
 using ServerAchievementFramework.API.Interface;
 using System;
-using AchievementFeature = ServerAchievementFramework.API.Feature.AchievementController;
+using System.Text;
 
 namespace ServerAchievementFramework.API.Commands
 {
@@ -30,15 +32,16 @@ namespace ServerAchievementFramework.API.Commands
                 player = Player.Get(arguments.At(1));
             }
             else
+            {
                 player = Player.Get((CommandSender)sender);
+            }
 
-            response = $"<color=#0000ff>Achievements list ({player.Nickname}):</color>\n";
             if (player == null)
             {
                 response = "player not found";
                 return false;
             }
-                
+            response = $"<color=#0000ff>Achievements list ({player.Nickname}):</color>\n";
             response += ShowAchievements(player,playerExe);
             return true;
         }
@@ -47,37 +50,58 @@ namespace ServerAchievementFramework.API.Commands
         /// 
         /// </summary>
         /// <param name="p">The player we wants their achievements</param>
-        /// <param name="playerExe">The player wanting the Achievement</param>
+        /// <param name="playerExe">The player doing the command</param>
         /// <returns></returns>
         private string ShowAchievements(Player p,Player playerExe)
         {
-            string response = string.Empty;
+            StringBuilder builder = StringBuilderPool.Pool.Get();
+            
             int i = 0;
-            foreach (var kv in AchievementFeature.AchievementPlayer)
+            foreach (var achievement in Achievement.Registered)
             {
-
-                IAchievement achievement = kv.Key;
-                bool locked = !kv.Value.Contains(p);
+                bool locked = !achievement.HasUnlockedIt(p);
                 bool exelocked = true;
                 if(playerExe != null)
                 {
-                    exelocked = !kv.Value.Contains(playerExe);
+                    exelocked = !achievement.HasUnlockedIt(playerExe);
                 }
-                response += $"<color={(locked ? (i % 2 == 0 ? "#800000" : "#b30000") : (i % 2 == 0 ? "green" : "#00b300"))}>";
+                builder.Append($"<color={(locked ? (i % 2 == 0 ? "#800000" : "#b30000") : (i % 2 == 0 ? "green" : "#00b300"))}>");
                 if (achievement.IsHidden && locked && exelocked)
-                    response += "[HIDDEN ACHIEVEMENT] - Unlock it to know more about it";
+                {
+                    builder.Append("[HIDDEN ACHIEVEMENT] - Unlock it to know more about it");
+                }
                 else
-                    response += $"[{achievement.Name}] - {achievement.Description}";
+                {
+                    builder.Append($"[{achievement.Name}] - {achievement.Description}");
+                }
+                    
 
                 if (locked)
-                    response += " (LOCKED)";
+                    builder.Append(" (LOCKED)");
                 else
-                    response += " (UNLOCKED)";
+                    builder.Append(" (UNLOCKED)");
 
-                response += "</color>\n\n";
+                if(achievement.Objective != 1)
+                {
+                    builder.Append(" (");
+                    if(achievement.TryGetProgress(p,out uint counter))
+                    {
+                        builder.Append(counter);
+                    }
+                    else
+                    {
+                        builder.Append(Achievement.StartingValue);
+                    }
+
+                    builder.Append("/" + achievement.Objective + ")");
+                }
+
+
+                builder.Append("</color>\n\n");
                 i++;
             }
-
+            string response = builder.ToString();
+            StringBuilderPool.Pool.Return(builder);
             return response;
         }
     }

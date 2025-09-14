@@ -1,14 +1,6 @@
-﻿using ServerAchievementFramework.API.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Exiled.Events.EventArgs.Player;
+﻿using Exiled.Events.EventArgs.Player;
 using ServerAchievementFramework.API.Feature;
-using Exiled.API.Features;
-using WarheadHandler = Exiled.Events.Handlers.Warhead;
-using Exiled.Events.EventArgs.Warhead;
+using ServerAchievementFramework.API.Interface;
 
 namespace SAF.Examples.Achievements
 {

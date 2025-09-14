@@ -1,4 +1,5 @@
-﻿using Exiled.API.Interfaces;
+﻿using Exiled.API.Enums;
+using Exiled.API.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,14 @@ namespace ServerAchievementFramework
         public string User { get; set; } = "SAFUser";
         public string DBName { get; set; } = "SAFSql";
         public string Password { get; set; } = "gexiled69";
+
+
+        public List<AuthenticationType> AllowedAuthenticationTypes { get; set; } = new()
+        {
+            AuthenticationType.Steam,
+            AuthenticationType.Discord,
+            AuthenticationType.Northwood
+        };
 
     }
 }

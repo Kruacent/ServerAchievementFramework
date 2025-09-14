@@ -12,31 +12,37 @@ namespace ServerAchievementFramework.API.Handlers
     {
         public void OnRoundEnding(RoundEndedEventArgs _)
         {
-            AchievementController.Instance.DeactivateAll();
+            Achievement.DeactivateAll();
         }
 
         public void OnRestartingRound()
         {
-            AchievementController.Instance.DeactivateAll();
+            
+            Achievement.DeactivateAll();
         }
+
 
         internal void OnVerified(VerifiedEventArgs ev)
         {
-            if (ev.Player == null)
+            
+            Player player = ev.Player;
+            if (player == null)
                 return;
             try
             {
-                if (ev.Player.DoNotTrack)
+                if (player.DoNotTrack)
                 {
-                    Database.Instance.RemoveIfExist(ev.Player);
+                    Log.Debug("dnt player aborting");
+                    Database.Instance.RemoveIfExist(player);
                     return;
                 }
-                Database.Instance.AddIfNotExist(ev.Player);
-                AchievementController.Instance.AddListOfAchievement(ev.Player, Database.Instance.GetAchievements(ev.Player));
+                Database.Instance.AddIfNotExist(player);
+                Achievement.AddListOfAchievement(player, Database.Instance.GetAchievements(player));
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Log.Warn("Error while adding the record to the db ; the database is probably off");
+                Log.Warn(e);
+                Log.Warn("Error while updating the record to the database ; the database is probably off");
             }
             
             

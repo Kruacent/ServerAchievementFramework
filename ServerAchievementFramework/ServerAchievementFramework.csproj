@@ -1,12 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
+	  <LangVersion>13.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ExMod.Exiled" Version="9.4.0" />
-    <PackageReference Include="MySql.Data" Version="9.1.0" />
+    <PackageReference Include="ExMod.Exiled" Version="9.8.1" />
+    <PackageReference Include="MySql.Data" Version="9.4.0" />
   </ItemGroup>
 
 	<ItemGroup>
@@ -16,5 +17,10 @@
 		<Reference Include="UnityEngine.CoreModule" HintPath="$(EXILED_REFERENCES)\UnityEngine.CoreModule.dll" />
 		<Reference Include="UnityEngine.PhysicsModule" HintPath="$(EXILED_REFERENCES)\UnityEngine.PhysicsModule.dll" />
 	</ItemGroup>
-	
+	<PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+		<PostBuildEvent>if not "$(EXILED_DEV_REFERENCES)"=="" copy /y "$(OutputPath)$(AssemblyName).dll" "$(EXILED_DEV_REFERENCES)\Plugins\"</PostBuildEvent>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(OS)' == 'Unix' ">
+		<PostBuildEvent>if [[ ! -z "$EXILED_DEV_REFERENCES" ]]; then cp "$(OutputPath)$(AssemblyName).dll" "$EXILED_DEV_REFERENCES/Plugins/"; fi</PostBuildEvent>
+	</PropertyGroup>
 </Project>

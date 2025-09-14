@@ -21,7 +21,8 @@ namespace SAF.Examples.Achievements
         public override bool IsHidden => false;
         private string[] roles = { "Guard", "Scientist","ClassD","NTF","Chaos" };
         private Dictionary<Player,HashSet<string>> _roles = new Dictionary<Player, HashSet<string>>();
-        
+        public override uint Objective => (uint)roles.Length;
+
         public void SubscribeEvent()
         {
             Exiled.Events.Handlers.Player.ChangingRole += OnChangingRole;
@@ -34,67 +35,52 @@ namespace SAF.Examples.Achievements
 
         private void OnChangingRole(ChangingRoleEventArgs ev)
         {
+            Player player = ev.Player;
             Log.Debug("role : " +ev.NewRole);
-            if (!_roles.TryGetValue(ev.Player,out HashSet<string> playerRole))
+            if (!_roles.ContainsKey(player))
             {
-                var a = new HashSet<string>();
-                _roles.Add(ev.Player, a);
-                playerRole = a;
+                _roles.Add(player, new HashSet<string>());
             }
 
 
             if(ev.NewRole == RoleTypeId.None || ev.NewRole == RoleTypeId.Spectator)
             {
-                _roles[ev.Player] = new HashSet<string>();
+                _roles[player] = new HashSet<string>();
                 return;
             }
 
 
 
-            VerifyRole(playerRole, ev.NewRole);
-            AttributeRole(ev.Player);
+            if (VerifyRole(_roles[player], ev.NewRole))
+            {
+                Log.Debug($"did {_roles[player].Count} roles ");
+                AddProgress(player);
+            }
         }
-        private void VerifyRole(HashSet<string> roleList,RoleTypeId role)
+        private bool VerifyRole(HashSet<string> roleList,RoleTypeId role)
         {
             if (role.IsNtf())
             {
-                if (!roleList.Contains(roles[3]))
-                {
-                    roleList.Add(roles[3]);
-                }
+                return roleList.Add(roles[3]);
             }
 
 
             if (role.IsChaos())
-            {
-                if (!roleList.Contains(roles[4]))
-                {
-                    roleList.Add(roles[4]);
-                }
+            { 
+                return roleList.Add(roles[4]);
             }
             switch (role)
             {
                 case RoleTypeId.FacilityGuard:
-                    roleList.Add(roles[0]);
-                    break;
+                    return roleList.Add(roles[0]);
                 case RoleTypeId.Scientist:
-                    roleList.Add(roles[1]);
-                    break;
+                    return roleList.Add(roles[1]);
                 case RoleTypeId.ClassD:
-                    roleList.Add(roles[2]);
+                    return roleList.Add(roles[1]);
+                default:
                     break;
             }
-        }
-        
-    
-        private void AttributeRole(Player p)
-        {
-            _roles.TryGetValue(p, out var value);
-            Log.Debug($"did {value.Count} roles ");
-            if(value.Count == 5)
-            {
-                GiveAchievement(p);
-            }
+            return false;
         }
     }
 }

@@ -7,6 +7,7 @@ namespace SAF.Examples
     public class MainPlugin : Plugin<Config>
     {
         public override string Name => "SAF.Examples";
+        public override string Prefix => "SAFE";
         public override string Author => "Patrique";
         public override Version RequiredExiledVersion => new Version(9, 4);
         
