@@ -1,9 +1,12 @@
 ﻿using Achievements;
 using Exiled.API.Features;
 using Exiled.API.Features.Pools;
+using KE.Utils.API.Displays.DisplayMeow;
+using KE.Utils.API.Displays.DisplayMeow.Placements;
 using KE.Utils.API.Interfaces;
 using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Security.Certificates;
+using ServerAchievementFramework.API.Core.Positions;
 using ServerAchievementFramework.API.Interface;
 using ServerAchievementFramework.API.Utils;
 using System;
@@ -171,14 +174,12 @@ namespace ServerAchievementFramework.API.Feature
             }
 
         }
+
+        private static HintPosition position = new NewAchievementPosition();
         private void Show(Player player)
         {
-            //Hint hint = new Hint()
-            //{
-            //    Content = $"Achievement Unlocked!\n{Name}!",
-            //    Duration = 10,
-            //};
-            //player.ShowHint(hint);
+
+            DisplayHandler.Instance.AddHint(position.HintPlacement, player, $"Achievement Unlocked!\n{Name}!", 10);
 
         }
 
