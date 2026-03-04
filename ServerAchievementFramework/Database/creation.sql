@@ -15,7 +15,6 @@ CREATE TABLE AuthTypes (
     authType VARCHAR(10) PRIMARY KEY
 );
 
--- Example insertions for the 4 auth types
 INSERT INTO AuthTypes (authType) VALUES
 ('Steam'),
 ('Discord'),

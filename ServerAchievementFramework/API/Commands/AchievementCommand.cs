@@ -23,7 +23,7 @@ namespace ServerAchievementFramework.API.Commands
         {
             if (arguments.Count == 0)
             {
-                response = "subcommand available : list, deleteall, privacy";
+                response = "subcommand available : list, deleteall";
                 return false;
             }
             response = "";

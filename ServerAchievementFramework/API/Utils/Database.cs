@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Drawing.Design;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Utils.NonAllocLINQ;
 
 namespace ServerAchievementFramework.API.Utils
@@ -103,6 +104,14 @@ namespace ServerAchievementFramework.API.Utils
             }
         }
 
+
+        public void AddAchievementAsync(Player player, Achievement achievement)
+        {
+            Task.Run(() => AddAchievement(player, achievement));
+        }
+
+
+
         /// <summary>
         /// Adds an <see cref="Achievement"/> to a <see cref="Player"/>
         /// </summary>
@@ -150,6 +159,12 @@ namespace ServerAchievementFramework.API.Utils
                 LogWarn(e);
                 return false;
             }
+        }
+
+
+        public void AddProgressAsync(Player player, CounterAchievement achievement)
+        {
+            Task.Run(() => AddProgress(player, achievement));
         }
 
         /// <summary>
@@ -234,9 +249,9 @@ namespace ServerAchievementFramework.API.Utils
 
         
 
-        public IEnumerable<Achievement> GetAchievements(Player player)
+        public IEnumerable<Achievement> SetAchievements(Player player)
         {
-            List<Achievement> result = new ();
+            List<Achievement> result = new();
             if(!PlayerInfo.TryCreate(player, out PlayerInfo info))
             {
                 return null;
@@ -265,9 +280,21 @@ namespace ServerAchievementFramework.API.Utils
 
                         if(Achievement.TryGet((string)aAchievementName, (string)aAchievementPlugin, out Achievement achievement))
                         {
+                            
+                            try
+                            {
+                                LogDebug("progress db =" + progress);
+                                LogDebug("objective =" + achievement.Objective);
 
-                            achievement.SetProgress(player,(uint)(int)progress);
-                            result.Add(achievement);
+                                achievement.SetProgress(player, (uint)(int)progress);
+                                result.Add(achievement);
+                                LogDebug("unlock =" + achievement.HasUnlockedIt(player));
+                            }
+                            catch(Exception e)
+                            {
+                                Log.Error(e);
+                            }
+                            
                             
                         }
                     }
@@ -336,7 +363,7 @@ namespace ServerAchievementFramework.API.Utils
             /// <returns>the <see cref="Player"/> only if it's connected and verified; null otherwise</returns>
             internal Player GetPlayer()
             {
-                return Player.List.FirstOrDefault(a => a.UserId == UserId);
+                return Player.Enumerable.FirstOrDefault(a => a.UserId == UserId);
             }
         }
     }

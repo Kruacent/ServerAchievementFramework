@@ -21,7 +21,7 @@ namespace ServerAchievementFramework.API.Feature
 
             try
             {
-                Database.Instance.AddProgress(player, this);
+                Database.Instance.AddProgressAsync(player, this);
             }
             catch (Exception)
             {

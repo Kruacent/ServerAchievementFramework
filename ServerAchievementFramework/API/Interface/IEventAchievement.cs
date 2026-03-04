@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ServerAchievementFramework.API.Interface
 {
-    public interface IEventAchievement
+    public interface IEventAchievements
     {
         void SubscribeEvent();
         void UnsubscribeEvent();

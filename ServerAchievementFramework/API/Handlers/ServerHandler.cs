@@ -1,9 +1,11 @@
 ﻿using Exiled.API.Features;
 using Exiled.Events.EventArgs.Player;
 using Exiled.Events.EventArgs.Server;
+using MEC;
 using ServerAchievementFramework.API.Feature;
 using ServerAchievementFramework.API.Utils;
 using System;
+using System.Collections.Generic;
 
 
 namespace ServerAchievementFramework.API.Handlers
@@ -37,7 +39,10 @@ namespace ServerAchievementFramework.API.Handlers
                     return;
                 }
                 Database.Instance.AddIfNotExist(player);
-                Achievement.AddListOfAchievement(player, Database.Instance.GetAchievements(player));
+                Timing.CallDelayed(Timing.WaitForOneFrame,delegate 
+                    {
+                        Database.Instance.SetAchievements(player);
+                    });
             }
             catch (Exception e)
             {
@@ -49,5 +54,6 @@ namespace ServerAchievementFramework.API.Handlers
             
 
         }
+
     }
 }

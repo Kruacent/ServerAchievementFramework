@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 using MEC;
 using PlayerRoles;
 using ServerAchievementFramework.API.Interface;
+using KE.Utils.API.Interfaces;
 
 namespace SAF.Examples.Achievements
 {
-    public class ActualKGBAgent : Achievement, IEventAchievement
+    public class ActualKGBAgent : Achievement, IUsingEvents
     {
         public override string Name => "Holy hell, Actual KGB Agent";
         public override string Description => "Stay around a SCP for 3 min in a row without dying";
@@ -22,12 +23,12 @@ namespace SAF.Examples.Achievements
         public float RadiusToCheck = 5f;
         private Dictionary<Player, uint> time = new Dictionary<Player, uint>();
 
-        public void SubscribeEvent()
+        public void SubscribeEvents()
         {
             Exiled.Events.Handlers.Server.RoundStarted += OnRoundStarted;
         }
 
-        public void UnsubscribeEvent()
+        public void UnsubscribeEvents()
         {
             Exiled.Events.Handlers.Server.RoundStarted -= OnRoundStarted;
         }

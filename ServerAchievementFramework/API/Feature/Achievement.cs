@@ -1,12 +1,17 @@
 ﻿using Achievements;
 using Exiled.API.Features;
+using Exiled.API.Features.Pools;
+using KE.Utils.API.Interfaces;
+using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Security.Certificates;
 using ServerAchievementFramework.API.Interface;
 using ServerAchievementFramework.API.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Utils.NonAllocLINQ;
@@ -49,7 +54,7 @@ namespace ServerAchievementFramework.API.Feature
 
             try
             {
-                Database.Instance.AddAchievement(player, this);
+                Database.Instance.AddAchievementAsync(player, this);
             }
             catch (Exception e)
             {
@@ -58,6 +63,68 @@ namespace ServerAchievementFramework.API.Feature
             }
             _counter.Add(player, Objective);
             Show(player);
+
+        }
+
+        public string GetText(Player player)
+        {
+            StringBuilder sb = StringBuilderPool.Pool.Get();
+
+            bool unlocked = HasUnlockedIt(player);
+            if (unlocked)
+            {
+                sb.Append("<color=green>");
+            }
+            else
+            {
+                sb.Append("<color=#b30000>");
+            }
+
+            if(!unlocked && IsHidden)
+            {
+
+                sb.Append("[HIDDEN ACHIEVEMENT] - Unlock it to know more about it</color>");
+                return StringBuilderPool.Pool.ToStringReturn(sb);
+            }
+
+
+
+            sb.AppendLine(Name);
+            sb.Append(Description);
+
+
+
+
+            if (unlocked)
+            {
+                sb.Append(" (UNLOCKED)");
+            }
+            else if(!IsHidden)
+            {
+                sb.Append(" (LOCKED)");
+            }
+
+            if(Objective != 1)
+            {
+
+                sb.Append(" (");
+
+                if (TryGetProgress(player, out uint counter))
+                {
+                    sb.Append( counter);
+                }
+                else
+                {
+                    sb.Append(StartingValue);
+                }
+
+                sb.Append('/');
+                sb.Append(Objective);
+                sb.Append(')');
+
+            }
+            sb.Append("</color>");
+            return StringBuilderPool.Pool.ToStringReturn(sb);
 
         }
 
@@ -95,9 +162,9 @@ namespace ServerAchievementFramework.API.Feature
             }
             else
             {
-                if (achievement is IEventAchievement eventAchievement)
+                if (achievement is IUsingEvents eventAchievement)
                 {
-                    eventAchievement.SubscribeEvent();
+                    eventAchievement.SubscribeEvents();
                 }
                 list.Add(achievement);
                 Database.Instance.AddAchievementToDB(achievement);
@@ -106,12 +173,12 @@ namespace ServerAchievementFramework.API.Feature
         }
         private void Show(Player player)
         {
-            Hint hint = new Hint()
-            {
-                Content = $"Achievement Unlocked!\n{Name}!",
-                Duration = 10,
-            };
-            player.ShowHint(hint);
+            //Hint hint = new Hint()
+            //{
+            //    Content = $"Achievement Unlocked!\n{Name}!",
+            //    Duration = 10,
+            //};
+            //player.ShowHint(hint);
 
         }
 
@@ -120,9 +187,9 @@ namespace ServerAchievementFramework.API.Feature
         {
             foreach(Achievement achievement in Registered)
             {
-                if (achievement is IEventAchievement @event)
+                if (achievement is IUsingEvents @event)
                 {
-                    @event.UnsubscribeEvent();
+                    @event.UnsubscribeEvents();
                 }
             }
 
@@ -132,37 +199,21 @@ namespace ServerAchievementFramework.API.Feature
 
         internal static void AddListOfAchievement(Player player, IEnumerable<Achievement> achievements)
         {
-            foreach (Achievement achievement in achievements)
-            {
-                achievement.SetAchievement(player);
-            }
+            //foreach (Achievement achievement in achievements)
+            //{
+            //    achievement.SetAchievement(player);
+            //}
         }
 
 
         private void SetAchievement(Player player)
         {
-            if (!_counter.ContainsKey(player))
-            {
-                _counter.Add(player, Objective);
-            }
-            else
-            {
-                _counter[player] = Objective;
-            }
-
-
+            _counter[player] = Objective;
         }
 
-        internal void SetProgress(Player player, uint progress)
+        public void SetProgress(Player player, uint progress)
         {
-            if (!_counter.ContainsKey(player))
-            {
-                _counter.Add(player, progress);
-            }else
-            {
-                _counter[player] = progress;
-            }
-            
+            _counter[player] = progress;
         }
 
         protected virtual void AddProgress(Player player, uint progressToAdd = 1)
@@ -185,7 +236,7 @@ namespace ServerAchievementFramework.API.Feature
 
         public bool HasUnlockedIt(Player player)
         {
-            if(_counter.TryGetValue(player,out uint counter))
+            if(TryGetProgress(player,out uint counter))
             {
                 return counter >= Objective;
             }

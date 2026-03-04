@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ExMod.Exiled" Version="9.8.1" />
+    <PackageReference Include="ExMod.Exiled" Version="9.13.1" />
     <PackageReference Include="MySql.Data" Version="9.4.0" />
   </ItemGroup>
 
@@ -16,6 +16,8 @@
 		<Reference Include="UnityEngine" HintPath="$(EXILED_REFERENCES)\UnityEngine.dll" />
 		<Reference Include="UnityEngine.CoreModule" HintPath="$(EXILED_REFERENCES)\UnityEngine.CoreModule.dll" />
 		<Reference Include="UnityEngine.PhysicsModule" HintPath="$(EXILED_REFERENCES)\UnityEngine.PhysicsModule.dll" />
+		<Reference Include="Unity.TextMeshPro" HintPath="$(EXILED_REFERENCES)\Unity.TextMeshPro.dll" />
+		<Reference Include="KE.Utils" HintPath="$(EXILED_DEV_REFERENCES)\Plugins\KE.Utils.dll" />
 	</ItemGroup>
 	<PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
 		<PostBuildEvent>if not "$(EXILED_DEV_REFERENCES)"=="" copy /y "$(OutputPath)$(AssemblyName).dll" "$(EXILED_DEV_REFERENCES)\Plugins\"</PostBuildEvent>

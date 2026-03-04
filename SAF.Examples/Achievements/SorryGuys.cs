@@ -1,6 +1,7 @@
 ﻿using Exiled.API.Features;
 using Exiled.Events.EventArgs.Player;
 using Exiled.Events.EventArgs.Server;
+using KE.Utils.API.Interfaces;
 using ServerAchievementFramework.API.Feature;
 using ServerAchievementFramework.API.Interface;
 using System;
@@ -11,18 +12,18 @@ using System.Threading.Tasks;
 
 namespace SAF.Examples.Achievements
 {
-    public class SorryGuys : Achievement, IEventAchievement
+    public class SorryGuys : Achievement, IUsingEvents
     {
         public override string Name => "Sorry Guys...";
         public override string Description => "Respawn alone";
         public override bool IsHidden => false;
 
-        public void SubscribeEvent()
+        public void SubscribeEvents()
         {
             Exiled.Events.Handlers.Server.RespawningTeam += OnRespawningTeam;
         }
 
-        public void UnsubscribeEvent()
+        public void UnsubscribeEvents()
         {
             Exiled.Events.Handlers.Server.RespawningTeam -= OnRespawningTeam;
         }

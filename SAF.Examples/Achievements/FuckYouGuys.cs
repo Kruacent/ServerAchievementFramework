@@ -1,5 +1,6 @@
 ﻿using Exiled.API.Features;
 using Exiled.Events.EventArgs.Server;
+using KE.Utils.API.Interfaces;
 using ServerAchievementFramework.API.Feature;
 using ServerAchievementFramework.API.Interface;
 using System;
@@ -10,20 +11,20 @@ using System.Threading.Tasks;
 
 namespace SAF.Examples.Achievements
 {
-    public class FuckYouGuys : Achievement, IEventAchievement
+    public class FuckYouGuys : Achievement, IUsingEvents
     {
         public override string Name => "Fuck You Guys";
         public override string Description => "Respawn alone at ALL respawns in the round until the deadman switch";
         public override bool IsHidden => true;
         public List<Player> Counter = Player.List.ToList();
 
-        public void SubscribeEvent()
+        public void SubscribeEvents()
         {
             Exiled.Events.Handlers.Server.RespawningTeam += OnRespawningTeam;
             Exiled.Events.Handlers.Warhead.Detonated += OnDetonated;
         }
 
-        public void UnsubscribeEvent()
+        public void UnsubscribeEvents()
         {
             Exiled.Events.Handlers.Server.RespawningTeam -= OnRespawningTeam;
             Exiled.Events.Handlers.Warhead.Detonated -= OnDetonated;

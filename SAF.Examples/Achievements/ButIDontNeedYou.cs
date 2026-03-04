@@ -1,29 +1,22 @@
 ﻿using Exiled.API.Features;
-using Exiled.Events.EventArgs.Player;
-using Exiled.Events.EventArgs.Server;
-using Exiled.Events.EventArgs.Warhead;
+using KE.Utils.API.Interfaces;
 using ServerAchievementFramework.API.Feature;
-using ServerAchievementFramework.API.Interface;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SAF.Examples.Achievements
 {
-    public class ButIDontNeedYou : Achievement, IEventAchievement
+    public class ButIDontNeedYou : Achievement, IUsingEvents
     {
         public override string Name => "...but I don't need you";
         public override string Description => "Be the sole human on surface when the deadman explode";
         public override bool IsHidden => false;
 
-        public void SubscribeEvent()
+        public void SubscribeEvents()
         {
             Exiled.Events.Handlers.Warhead.Detonated += OnDetonated;
         }
 
-        public void UnsubscribeEvent()
+        public void UnsubscribeEvents()
         {
             Exiled.Events.Handlers.Warhead.Detonated -= OnDetonated;
         }

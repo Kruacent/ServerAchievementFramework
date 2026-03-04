@@ -1,20 +1,15 @@
 ﻿using Exiled.API.Extensions;
 using Exiled.API.Features;
-using Exiled.API.Features.Roles;
 using Exiled.Events.EventArgs.Player;
+using KE.Utils.API.Interfaces;
 using PlayerRoles;
-using PluginAPI.Roles;
 using ServerAchievementFramework.API.Feature;
 using ServerAchievementFramework.API.Interface;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SAF.Examples.Achievements
 {
-    public class BetrayPharmacy : Achievement, IEventAchievement
+    public class BetrayPharmacy : Achievement, IUsingEvents
     {
         public override string Name => "Betray pills? More like Betray pharmacy";
         public override string Description => "Be all of the role in game (Guard,Scientist,Class-D,NTF,Chaos) in one life";
@@ -23,12 +18,12 @@ namespace SAF.Examples.Achievements
         private Dictionary<Player,HashSet<string>> _roles = new Dictionary<Player, HashSet<string>>();
         public override uint Objective => (uint)roles.Length;
 
-        public void SubscribeEvent()
+        public void SubscribeEvents()
         {
             Exiled.Events.Handlers.Player.ChangingRole += OnChangingRole;
         }
 
-        public void UnsubscribeEvent()
+        public void UnsubscribeEvents()
         {
             Exiled.Events.Handlers.Player.ChangingRole -= OnChangingRole;
         }
