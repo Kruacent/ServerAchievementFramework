@@ -221,7 +221,7 @@ namespace ServerAchievementFramework.API.Utils
             {
                 using (MySqlCommand cmd = GetMySqlCommand())
                 {
-                    cmd.CommandText = "insert ignore into Achievements VALUES (@value1,@value2,@value3,@value4) ON DUPLICATE KEY UPDATE target = VALUES(target);;";
+                    cmd.CommandText = "insert ignore into Achievements VALUES (@value1,@value2,@value3,@value4) ON DUPLICATE KEY UPDATE target = VALUES(target);";
 
                     cmd.Parameters.AddWithValue("@value1", achievement.Id);
                     cmd.Parameters.AddWithValue("@value2", achievement.PrefixPlugin);

@@ -73,7 +73,7 @@ namespace ServerAchievementFramework.API.Settings
                 }
 
             }
-            float percent = (float) Math.Round(((float)counter / Achievement.Registered.Count)*100);
+            int percent = (int) Math.Round(((float)counter / Achievement.Registered.Count)*100);
             
 
             category.AdditionalSettings.Add(new TextInputSetting(curr++, $"Completion : " + percent + '%', alignment: TMPro.TextAlignmentOptions.Left, header: category.Header));
@@ -81,7 +81,9 @@ namespace ServerAchievementFramework.API.Settings
 
             ListPool<SettingBase>.Pool.Return(temp);
 
-            SettingsCategory.Register(true);
+            //SettingsCategory.Register(true,false);
+
+            category.Send(player);
         }
   
         private SettingBase CreateAchievementText(Achievement achievement,Player player)

@@ -20,7 +20,7 @@ namespace ServerAchievementFramework.API.Feature
                 {
                     try
                     {
-                        if (type.IsSubclassOf(typeof(Achievement)))
+                        if (!type.IsAbstract &&type.IsSubclassOf(typeof(Achievement)))
                         {
                             Log.Debug("adding plugin " + type.Name);
                             ActivePlugins.Add(plugin);

@@ -69,6 +69,15 @@ namespace ServerAchievementFramework.API.Feature
 
         }
 
+
+        protected void GiveAchievement(IEnumerable<Player> players)
+        {
+            foreach(Player player in players)
+            {
+                GiveAchievement(player);
+            }
+        }
+
         public string GetText(Player player)
         {
             StringBuilder sb = StringBuilderPool.Pool.Get();
