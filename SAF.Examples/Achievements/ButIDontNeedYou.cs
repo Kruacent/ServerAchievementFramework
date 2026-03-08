@@ -25,7 +25,7 @@ namespace SAF.Examples.Achievements
         {
             if (Warhead.DeadmanSwitchEnabled)
             {
-                var aliveHumans = Player.List.Where(p => p.IsAlive && p.IsHuman).ToList();
+                var aliveHumans = Player.Enumerable.Where(p => p.IsAlive && p.IsHuman).ToList();
                 if (aliveHumans.Count() == 1)
                 {
                     GiveAchievement(aliveHumans.First());
