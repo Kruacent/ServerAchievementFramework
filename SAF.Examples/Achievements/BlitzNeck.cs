@@ -88,6 +88,7 @@ namespace SAF.Examples.Achievements
                 {
                     counter = 0;
                 }
+                lastkill = DateTime.Now;
             }
 
 
