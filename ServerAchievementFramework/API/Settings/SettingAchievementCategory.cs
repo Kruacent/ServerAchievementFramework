@@ -39,7 +39,17 @@ namespace ServerAchievementFramework.API.Settings
         public void Send(Player player)
         {
 
-            ServerSpecificSettingsSync.SendToPlayer(player.ReferenceHub, ServerSpecificSettingsSync.DefinedSettings.Concat(AdditionalSettings.Select((SettingBase s) => s.Base)).ToArray());
+            var setts = AllSettings.ToList();
+
+
+
+            setts.AddRange(AdditionalSettings);
+
+
+
+
+
+            ServerSpecificSettingsSync.SendToPlayer(player.ReferenceHub, setts.Select((SettingBase s) => s.Base).ToHashSet().ToArray());
             
         }
 

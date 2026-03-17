@@ -19,15 +19,25 @@ namespace SAF.Examples.Achievements
         public void SubscribeEvents()
         {
             Exiled.Events.Handlers.Server.RoundEnded += OnRoundEnded;
+            Exiled.Events.Handlers.Server.RespawnedTeam += OnRespawnTeam;
         }
 
         public void UnsubscribeEvents()
         {
             Exiled.Events.Handlers.Server.RoundEnded -= OnRoundEnded;
+            Exiled.Events.Handlers.Server.RespawnedTeam -= OnRespawnTeam;
         }
 
+        private void OnRespawnTeam(RespawnedTeamEventArgs ev)
+        {
+            lockedOut = true;
+        }
+
+        private bool lockedOut = false;
         public void OnRoundEnded(RoundEndedEventArgs ev)
         {
+            if (lockedOut) return;
+
             if(SCPTeam.SCPs.Count > 0)
             {
 

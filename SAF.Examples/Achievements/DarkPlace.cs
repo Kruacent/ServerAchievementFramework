@@ -13,7 +13,7 @@ namespace SAF.Examples.Achievements
     public class DarkPlace : Achievement, IUsingEvents
     {
         public override string Name => "Dark Place";
-        public override string Description => "As a human , be warped in the Pocket dimension while you & SCP-106 both are in a blackouted room";
+        public override string Description => "As a human, be warped in the Pocket dimension while you & SCP-106 both are in a blackouted room";
         public override bool IsHidden => false;
 
         public void SubscribeEvents()

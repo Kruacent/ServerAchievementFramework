@@ -1,6 +1,7 @@
 ﻿using Exiled.API.Features;
 using Exiled.API.Features.Core.UserSettings;
 using Exiled.API.Features.Pools;
+using KE.Utils.API.Features;
 using KE.Utils.API.Interfaces;
 using KE.Utils.API.Settings.SettingsCategories;
 using ServerAchievementFramework.API.Feature;
@@ -74,7 +75,8 @@ namespace ServerAchievementFramework.API.Settings
 
             }
             int percent = (int) Math.Round(((float)counter / Achievement.Registered.Count)*100);
-            
+
+            KELog.Debug("recync" + player.Id);
 
             category.AdditionalSettings.Add(new TextInputSetting(curr++, $"Completion : " + percent + '%', alignment: TMPro.TextAlignmentOptions.Left, header: category.Header));
             category.AdditionalSettings.AddRange(temp);
