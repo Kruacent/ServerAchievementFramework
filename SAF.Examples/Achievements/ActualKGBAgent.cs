@@ -10,6 +10,8 @@ using MEC;
 using PlayerRoles;
 using ServerAchievementFramework.API.Interface;
 using KE.Utils.API.Interfaces;
+using KE.Utils.API.Features.SCPs;
+using UnityEngine;
 
 namespace SAF.Examples.Achievements
 {
@@ -44,27 +46,34 @@ namespace SAF.Examples.Achievements
             while (Round.InProgress)
             {
                 yield return Timing.WaitForSeconds(RefreshRate);
-                Player.List.Where(p => p.IsScp && p.Role != RoleTypeId.Scp0492).ToList().ForEach(p =>
+                foreach(Player scp in Player.Enumerable.Where(player => SCPTeam.IsSCP(player.ReferenceHub) && player.Role != RoleTypeId.Scp0492))
                 {
-                    Player.List.Where(h => h.IsHuman && h.IsAlive).ToList().ForEach(h =>
+                    foreach(Player human in Player.Enumerable.Where(human => human.IsAlive && !SCPTeam.IsSCP(human.ReferenceHub)))
                     {
-                        if (Math.Pow(h.Position.x - p.Position.x, 2) + Math.Pow(h.Position.y - p.Position.y, 2) <= Math.Pow(RadiusToCheck, 2))
+                        if (Vector3.Distance(human.Position, scp.Position) <= Math.Pow(RadiusToCheck, 2))
                         {
-                            if (!time.ContainsKey(h))
-                                time[h] = 1;
+                            if (!time.ContainsKey(human))
+                                time[human] = 1;
                             else
                             {
-                                Log.Debug($"{h.Nickname} is in the scp radius  ({time[h]})");
-                                time[h]++;
+                                Log.Debug($"{human.Nickname} is in the scp radius  ({time[human]})");
+                                time[human]++;
                             }
                         }
                         else
-                            time[h] = 0;
-
-                        if (time[h] >= 180)
-                            GiveAchievement(h);
-                    });
-                });
+                        {
+                            time[human] = 0;
+                        }
+                        if (time[human] >= 180)
+                        {
+                            if (HasUnlockedIt(human))
+                            {
+                                GiveAchievement(human);
+                            }
+                        }
+                        
+                    }
+                }
 
 
             }
