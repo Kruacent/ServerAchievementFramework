@@ -18,36 +18,33 @@ namespace SAF.Examples.Achievements
         public override string Description => "As any class, activate all elevator from the inside at least once in the round";
         public override bool IsHidden => false;
 
-        public Dictionary<Player, HashSet<Lift>> Counter = Player.List.ToDictionary(x => x, x => new HashSet<Lift>());
+        public Dictionary<Player, HashSet<Lift>> Counter = new();
 
         public void SubscribeEvents()
         {
             Exiled.Events.Handlers.Player.InteractingElevator += OnInteractingElevator;
-            Exiled.Events.Handlers.Player.Verified += OnVerified;
         }
 
         public void UnsubscribeEvents()
         {
             Exiled.Events.Handlers.Player.InteractingElevator -= OnInteractingElevator;
-            Exiled.Events.Handlers.Player.Verified -= OnVerified;
         }
 
         public void OnInteractingElevator(InteractingElevatorEventArgs ev)
         {
+            Player player = ev.Player;
             if (ev.IsCalledFromInside)
             {
-                Counter[ev.Player].Add(ev.Lift);
+                if (Counter.ContainsKey(player))
+                {
+                    Counter.Add(player, new());
+                }
+
+                Counter[player].Add(ev.Lift);
             }
 
-            if (Lift.List.All(v => Counter[ev.Player].Contains(v)))
-                GiveAchievement(ev.Player);
-        }
-        public void OnVerified(VerifiedEventArgs ev) 
-        {
-            if (ev.Player.DoNotTrack)
-                return;
-
-            Counter.Add(ev.Player, new HashSet<Lift>());
+            if (Lift.List.All(v => Counter[player].Contains(v)))
+                GiveAchievement(player);
         }
     }
 }
