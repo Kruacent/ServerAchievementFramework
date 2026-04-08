@@ -79,6 +79,13 @@ namespace ServerAchievementFramework.API.Settings
             KELog.Debug("recync" + player.Id);
 
             category.AdditionalSettings.Add(new TextInputSetting(curr++, $"Completion : " + percent + '%', alignment: TMPro.TextAlignmentOptions.Left, header: category.Header));
+
+            if (player.DoNotTrack)
+            {
+                category.AdditionalSettings.Add(new TextInputSetting(curr++, "<color=red>Do Not Track is activated : Achievements will not be saved</color>", alignment: TMPro.TextAlignmentOptions.Left, header: category.Header));
+            }
+
+            
             category.AdditionalSettings.AddRange(temp);
 
             ListPool<SettingBase>.Pool.Return(temp);
