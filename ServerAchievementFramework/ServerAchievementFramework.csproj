@@ -17,13 +17,15 @@
 		<Reference Include="UnityEngine.CoreModule" HintPath="$(EXILED_REFERENCES)\UnityEngine.CoreModule.dll" />
 		<Reference Include="UnityEngine.PhysicsModule" HintPath="$(EXILED_REFERENCES)\UnityEngine.PhysicsModule.dll" />
 		<Reference Include="Unity.TextMeshPro" HintPath="$(EXILED_REFERENCES)\Unity.TextMeshPro.dll" />
-		<Reference Include="KE.Utils" HintPath="$(EXILED_DEV_REFERENCES)\Plugins\KE.Utils.dll" />
+		<Reference Include="KE.Utils" HintPath="$(EXILED_REFERENCES)\KE.Utils.dll" />
 		<Reference Include="HintServiceMeow-Exiled" HintPath="$(EXILED_REFERENCES)\HintServiceMeow-Exiled.dll" />
 	</ItemGroup>
 	<PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
 		<PostBuildEvent>if not "$(EXILED_DEV_REFERENCES)"=="" copy /y "$(OutputPath)$(AssemblyName).dll" "$(EXILED_DEV_REFERENCES)\Plugins\"</PostBuildEvent>
+		<PostBuildEvent>if not "$(EXILED_REFERENCES)"=="" copy /y "$(OutputPath)$(AssemblyName).dll" "$(EXILED_REFERENCES)"</PostBuildEvent>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(OS)' == 'Unix' ">
 		<PostBuildEvent>if [[ ! -z "$EXILED_DEV_REFERENCES" ]]; then cp "$(OutputPath)$(AssemblyName).dll" "$EXILED_DEV_REFERENCES/Plugins/"; fi</PostBuildEvent>
+		<PostBuildEvent>if [[ ! -z "$EXILED_REFERENCES" ]]; then cp "$(OutputPath)$(AssemblyName).dll" "$EXILED_REFERENCES"; fi</PostBuildEvent>
 	</PropertyGroup>
 </Project>
