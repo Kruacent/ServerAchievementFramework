@@ -4,7 +4,6 @@ using Exiled.API.Features.Items.Keycards;
 using Exiled.API.Interfaces.Keycards;
 using Exiled.Events.EventArgs.Player;
 using KE.Utils.API.Interfaces;
-using SAF.Examples.Achievements.CustomItems;
 using ServerAchievementFramework.API.Feature;
 using ServerAchievementFramework.API.Interface;
 

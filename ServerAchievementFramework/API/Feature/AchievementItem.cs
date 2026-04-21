@@ -1,9 +1,8 @@
 ﻿using Exiled.API.Features.Items;
 using Exiled.Events.EventArgs.Player;
 using KE.Utils.API.Interfaces;
-using ServerAchievementFramework.API.Feature;
 
-namespace SAF.Examples.Achievements.CustomItems
+namespace ServerAchievementFramework.API.Feature
 {
     public abstract class AchievementItem : Achievement, IUsingEvents
     {
