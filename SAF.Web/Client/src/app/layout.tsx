@@ -1,33 +1,49 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { I18nProvider } from "@/components/I18nProvider";
+import { SiteHeader } from "@/components/SiteHeader";
+import { getI18n } from "@/utils/locale";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const sans = IBM_Plex_Sans({
+  variable: "--font-plex-sans",
+  weight: ["400", "500", "600"],
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const mono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
+  weight: ["400"],
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Achievements | Server Achievement Framework",
-  description: "Liste des achievements du serveur.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return {
+    title: {
+      default: `${t.nav.achievements} | ${t.siteName}`,
+      template: `%s | ${t.siteName}`,
+    },
+    description: t.siteDescription,
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { locale } = await getI18n();
+
   return (
-    <html lang="fr">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang={locale}>
+      <body className={`${sans.variable} ${mono.variable} antialiased`}>
+        <I18nProvider locale={locale}>
+          <SiteHeader />
+          <main className="mx-auto max-w-5xl px-5 py-10 sm:px-8 sm:py-14">
+            {children}
+          </main>
+        </I18nProvider>
       </body>
     </html>
   );

@@ -1,116 +1,132 @@
 import express from 'express';
 import { pool } from '../../config/database.js';
+import { clampLimit } from '../../utils/query.js';
+import {
+    IS_VISIBLE,
+    JOIN_UNLOCKS_OF_PLAYER,
+    LEADERBOARD,
+    PLAYER_ID,
+    UNLOCKS,
+    parsePlayerId,
+} from '../../utils/sql.js';
+import { withSteamProfiles } from '../../utils/steam.js';
 
 const router = express.Router();
 
-router.get('/all', async (req, res) => {
-    try {
-        const [rows] = await pool.query(`
-            SELECT userID, userName, created_at, updated_at
-            FROM Players
-            ORDER BY userName ASC
-        `);
-        res.status(200).json(rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Erreur lors de la récupération des joueurs' });
-    }
-});
+const REDACTED_DESCRIPTIONS = [
+    'Spend a full minute near a [REDACTED] without panicking.',
+    'Be the first to reach the [REDACTED] this round.',
+    'Survive a [REDACTED] encounter alone.',
+    'Activate all [REDACTED] while avoiding detection.',
+    'Escape the [REDACTED] without any teammates.',
+    'Interact with the [REDACTED] in complete darkness.',
+    'Complete a [REDACTED] task under unusual conditions.',
+    'Discover a [REDACTED] without triggering alarms.',
+    'Witness the [REDACTED] event without dying.',
+    'Reach the [REDACTED] area before anyone else.',
+];
 
-function redactText() {
-    const phrases = [
-        "Spend a full minute near a [REDACTED] without panicking.",
-        "Be the first to reach the [REDACTED] this round.",
-        "Survive a [REDACTED] encounter alone.",
-        "Activate all [REDACTED] while avoiding detection.",
-        "Escape the [REDACTED] without any teammates.",
-        "Interact with the [REDACTED] in complete darkness.",
-        "Complete a [REDACTED] task under unusual conditions.",
-        "Discover a [REDACTED] without triggering alarms.",
-        "Witness the [REDACTED] event without dying.",
-        "Reach the [REDACTED] area before anyone else."
-    ];
-    return phrases[Math.floor(Math.random() * phrases.length)];
+function redact(achievement) {
+    if (!achievement.hidden) return achievement;
+    return {
+        plugin: null,
+        achievement_id: null,
+        achName: '[REDACTED]',
+        description: REDACTED_DESCRIPTIONS[Math.floor(Math.random() * REDACTED_DESCRIPTIONS.length)],
+        hidden: 1,
+        obtained_at: achievement.obtained_at,
+    };
 }
 
-router.get('/:userID', async (req, res) => {
-    const { userID } = req.params;
-
-    try {
-        const [playerRows] = await pool.query(`
-            SELECT userID, userName, created_at, updated_at
-            FROM Players
-            WHERE userID = ?
-        `, [userID]);
-
-        if (playerRows.length === 0) 
-            return res.status(404).json({ error: 'Joueur non trouvé' });
-
-        const player = playerRows[0];
-
-        const [achievements] = await pool.query(`
-            SELECT a.achievement_id, a.achName, a.description, a.hidden, pa.obtained_at
-            FROM PlayersAchievements pa
-            JOIN Achievements a ON pa.achievement_id = a.achievement_id
-            WHERE pa.userID = ?
-            ORDER BY pa.obtained_at DESC
-        `, [userID]);
-
-        player.achievements = achievements.map(a => {
-            if (a.hidden) {
-                return {
-                    achievement_id: Math.floor(Math.random() * 1e9 + 1e8),
-                    achName: '[REDACTED]',
-                    description: redactText(),
-                    hidden: 1,
-                    obtained_at: a.obtained_at
-                };
-            }
-            return a;
-        });
-
-        res.status(200).json(player);
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Erreur lors de la récupération du joueur' });
-    }
+router.get('/all', async (req, res) => {
+    const search = typeof req.query.search === 'string'
+        ? req.query.search.trim().toLowerCase().slice(0, 100)
+        : '';
+    const [rows] = await pool.query(`
+        SELECT ${PLAYER_ID} AS userID, COUNT(u.achId) AS unlocked
+        FROM Players p
+        ${JOIN_UNLOCKS_OF_PLAYER}
+        GROUP BY p.userID, p.authType
+        ORDER BY p.userID ASC
+    `);
+    const players = await withSteamProfiles(rows);
+    res.json(players.filter((player) =>
+        player.userID.toLowerCase().includes(search) ||
+        (player.userName ?? '').toLowerCase().includes(search)
+    ));
 });
 
 router.get('/leaderboard', async (req, res) => {
-    try {
-        const [rows] = await pool.query(`
-            SELECT 
-                p.userID, 
-                p.userName,
-                COUNT(pa.achievement_id) AS unlocked,
-                (COUNT(pa.achievement_id) / (SELECT COUNT(*) FROM Achievements)) * 100 AS percent_completed
-            FROM Players p
-            LEFT JOIN PlayersAchievements pa ON p.userID = pa.userID
-            GROUP BY p.userID
-            ORDER BY percent_completed DESC
-            LIMIT 50
-        `);
-        res.status(200).json(rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Erreur lors de la récupération du leaderboard' });
-    }
+    const limit = clampLimit(req.query.limit, 50, 100);
+    const [rows] = await pool.query(LEADERBOARD, [limit]);
+    res.json(await withSteamProfiles(rows));
 });
 
 router.get('/with-achievements', async (req, res) => {
-    try {
-        const [rows] = await pool.query(`
-            SELECT DISTINCT p.userID, p.userName
-            FROM Players p
-            JOIN PlayersAchievements pa ON p.userID = pa.userID
-            ORDER BY p.userName ASC
-        `);
-        res.status(200).json(rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Erreur lors de la récupération des joueurs avec achievements' });
-    }
+    const [rows] = await pool.query(`
+        SELECT DISTINCT ${PLAYER_ID} AS userID
+        FROM Players p
+        JOIN ${UNLOCKS} u ON u.aPlayer = p.userID AND u.aPlayerAuth = p.authType
+        ORDER BY userID ASC
+    `);
+    res.json(await withSteamProfiles(rows));
+});
+
+router.get('/:userID', async (req, res) => {
+    const id = parsePlayerId(req.params.userID);
+    if (!id) return res.status(404).json({ error: 'Player not found' });
+    const key = [id.userID, id.authType];
+
+    const [playerRows] = await pool.query(`
+        SELECT ${PLAYER_ID} AS userID
+        FROM Players p
+        WHERE p.userID = ? AND p.authType = ?
+    `, key);
+
+    if (playerRows.length === 0) return res.status(404).json({ error: 'Player not found' });
+
+    const [achievements] = await pool.query(`
+        SELECT
+            u.achPlugin AS plugin, u.achId AS achievement_id,
+            u.achDisplayName AS achName, u.achDescription AS description,
+            u.hidden, u.obtained_at
+        FROM ${UNLOCKS} u
+        WHERE u.aPlayer = ? AND u.aPlayerAuth = ?
+        ORDER BY u.obtained_at DESC
+    `, key);
+
+    const [inProgress] = await pool.query(`
+        SELECT a.achPlugin AS plugin, a.achId AS achievement_id, pa.progress, a.target
+        FROM PlayersAchievement pa
+        JOIN Achievements a
+            ON a.achId = pa.AchievementId AND a.achPlugin = pa.aAchievementPlugin
+        WHERE pa.aPlayer = ? AND pa.aPlayerAuth = ?
+            AND pa.progress > 0 AND pa.progress < a.target AND ${IS_VISIBLE}
+    `, key);
+
+    const [[totals]] = await pool.query(`
+        SELECT
+            (SELECT COUNT(*) FROM Achievements) AS total_achievements,
+            (SELECT COUNT(*) + 1 FROM (
+                SELECT 1 FROM ${UNLOCKS} u
+                GROUP BY u.aPlayer, u.aPlayerAuth HAVING COUNT(*) > ?
+            ) ahead) AS player_rank
+    `, [achievements.length]);
+
+    const total = Number(totals.total_achievements);
+    const [player] = await withSteamProfiles(playerRows);
+
+    res.json({
+        ...player,
+        unlocked: achievements.length,
+        total_achievements: total,
+        percent_completed: total > 0
+            ? Math.round((achievements.length / total) * 10000) / 100
+            : 0,
+        rank: Number(totals.player_rank),
+        achievements: achievements.map(redact),
+        in_progress: inProgress,
+    });
 });
 
 export default router;

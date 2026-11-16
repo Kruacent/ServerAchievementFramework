@@ -1,59 +1,46 @@
 import express from 'express';
 import { pool } from '../../config/database.js';
+import {
+    IS_VISIBLE,
+    JOIN_UNLOCKS_OF_ACHIEVEMENT,
+    PERCENT_OF_PLAYERS,
+    UNLOCKS,
+} from '../../utils/sql.js';
 
 const router = express.Router();
 
 router.get('/achievements-percentage', async (req, res) => {
-    try {
-        const [rows] = await pool.query(`
-            SELECT 
-                a.achievement_id,
-                a.achName,
-                COUNT(pa.userID) AS players_count,
-                ROUND(COUNT(pa.userID) / (SELECT COUNT(*) FROM Players) * 100, 2) AS percent_completed
-            FROM Achievements a
-            LEFT JOIN PlayersAchievements pa ON a.achievement_id = pa.achievement_id
-            GROUP BY a.achievement_id
-            ORDER BY percent_completed DESC
-        `);
-        res.status(200).json(rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Erreur lors de la récupération des stats d\'achievements' });
-    }
+    const [rows] = await pool.query(`
+        SELECT
+            a.achPlugin AS plugin,
+            a.achId AS achievement_id,
+            a.achDisplayName AS achName,
+            COUNT(u.aPlayer) AS players_count,
+            ${PERCENT_OF_PLAYERS} AS percent_completed
+        FROM Achievements a
+        ${JOIN_UNLOCKS_OF_ACHIEVEMENT}
+        WHERE ${IS_VISIBLE}
+        GROUP BY a.achId, a.achPlugin
+        ORDER BY percent_completed DESC
+    `);
+    res.json(rows);
 });
 
-router.get('/total-players', async (req, res) => {
-    try {
-        const [rows] = await pool.query(`
-            SELECT COUNT(*) AS total_players FROM Players
-        `);
-        res.status(200).json(rows[0]);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Erreur lors de la récupération du nombre total de joueurs' });
-    }
-});
-
-router.get('/leaderboard-global', async (req, res) => {
-    try {
-        const [rows] = await pool.query(`
-            SELECT 
-                p.userID, 
-                p.userName,
-                COUNT(pa.achievement_id) AS unlocked,
-                (COUNT(pa.achievement_id) / (SELECT COUNT(*) FROM Achievements)) * 100 AS percent_completed
-            FROM Players p
-            LEFT JOIN PlayersAchievements pa ON p.userID = pa.userID
-            GROUP BY p.userID
-            ORDER BY percent_completed DESC
-            LIMIT 50
-        `);
-        res.status(200).json(rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Erreur lors de la récupération du leaderboard global' });
-    }
+router.get('/overview', async (req, res) => {
+    const [[row]] = await pool.query(`
+        SELECT
+            (SELECT COUNT(*) FROM Players) AS total_players,
+            (SELECT COUNT(*) FROM Achievements) AS total_achievements,
+            (SELECT COUNT(*) FROM Achievements WHERE hidden = 1) AS hidden_achievements,
+            (SELECT COUNT(*) FROM ${UNLOCKS} u) AS total_unlocks
+    `);
+    const possible = Number(row.total_players) * Number(row.total_achievements);
+    res.json({
+        ...row,
+        average_completion: possible > 0
+            ? Math.round((Number(row.total_unlocks) / possible) * 10000) / 100
+            : 0,
+    });
 });
 
 export default router;

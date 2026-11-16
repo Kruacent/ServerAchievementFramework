@@ -1,50 +1,33 @@
 import express from 'express';
 import { pool } from '../../config/database.js';
+import { ACHIEVEMENT_COLUMNS, IS_VISIBLE } from '../../utils/sql.js';
 
 const router = express.Router();
 
 router.get('/all', async (req, res) => {
-    try {
-        const [rows] = await pool.query(`
-            SELECT category_id, name, description
-            FROM AchievementCategories
-            ORDER BY name ASC
-        `);
-        res.status(200).json(rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Erreur lors de la récupération des catégories' });
-    }
+    const [rows] = await pool.query(`
+        SELECT a.achPlugin AS category_id, a.achPlugin AS name,
+            COUNT(*) AS achievements_count
+        FROM Achievements a
+        WHERE ${IS_VISIBLE}
+        GROUP BY a.achPlugin
+        ORDER BY a.achPlugin ASC
+    `);
+    res.json(rows);
 });
 
 router.get('/:categoryId', async (req, res) => {
-    const { categoryId } = req.params;
+    const [achievements] = await pool.query(`
+        SELECT ${ACHIEVEMENT_COLUMNS}
+        FROM Achievements a
+        WHERE a.achPlugin = ? AND ${IS_VISIBLE}
+        ORDER BY a.achDisplayName ASC
+    `, [req.params.categoryId]);
 
-    try {
-        const [categoryRows] = await pool.query(`
-            SELECT category_id, name, description
-            FROM AchievementCategories
-            WHERE category_id = ?
-        `, [categoryId]);
+    if (achievements.length === 0) return res.status(404).json({ error: 'Category not found' });
 
-        if (categoryRows.length === 0) return res.status(404).json({ error: 'Catégorie non trouvée' });
-
-        const category = categoryRows[0];
-
-        const [achievements] = await pool.query(`
-            SELECT achievement_id, achName, description, hidden
-            FROM Achievements
-            WHERE category_id = ?
-            ORDER BY achievement_id ASC
-        `, [categoryId]);
-
-        category.achievements = achievements;
-
-        res.status(200).json(category);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Erreur lors de la récupération de la catégorie' });
-    }
+    const name = achievements[0].plugin;
+    res.json({ category_id: name, name, achievements });
 });
 
 export default router;
