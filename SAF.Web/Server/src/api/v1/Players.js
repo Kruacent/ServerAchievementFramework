@@ -13,31 +13,6 @@ import { withSteamProfiles } from '../../utils/steam.js';
 
 const router = express.Router();
 
-const REDACTED_DESCRIPTIONS = [
-    'Spend a full minute near a [REDACTED] without panicking.',
-    'Be the first to reach the [REDACTED] this round.',
-    'Survive a [REDACTED] encounter alone.',
-    'Activate all [REDACTED] while avoiding detection.',
-    'Escape the [REDACTED] without any teammates.',
-    'Interact with the [REDACTED] in complete darkness.',
-    'Complete a [REDACTED] task under unusual conditions.',
-    'Discover a [REDACTED] without triggering alarms.',
-    'Witness the [REDACTED] event without dying.',
-    'Reach the [REDACTED] area before anyone else.',
-];
-
-function redact(achievement) {
-    if (!achievement.hidden) return achievement;
-    return {
-        plugin: null,
-        achievement_id: null,
-        achName: '[REDACTED]',
-        description: REDACTED_DESCRIPTIONS[Math.floor(Math.random() * REDACTED_DESCRIPTIONS.length)],
-        hidden: 1,
-        obtained_at: achievement.obtained_at,
-    };
-}
-
 router.get('/all', async (req, res) => {
     const search = typeof req.query.search === 'string'
         ? req.query.search.trim().toLowerCase().slice(0, 100)
@@ -124,7 +99,7 @@ router.get('/:userID', async (req, res) => {
             ? Math.round((achievements.length / total) * 10000) / 100
             : 0,
         rank: Number(totals.player_rank),
-        achievements: achievements.map(redact),
+        achievements: achievements,
         in_progress: inProgress,
     });
 });
