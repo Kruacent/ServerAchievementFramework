@@ -1,0 +1,7 @@
+services:
+  db:
+    build: ./Database
+  api:
+    build: ./Server
+  web:
+    build: ./Client

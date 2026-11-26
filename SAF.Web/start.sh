@@ -12,7 +12,8 @@ if [ ! -f .env ]; then
     echo "Created .env from env.example."
 fi
 
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 
 echo
 echo "The site is starting on http://localhost:3000 (WEB_PORT in .env)."
