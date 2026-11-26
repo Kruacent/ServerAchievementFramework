@@ -2,7 +2,7 @@ name: Build and Push Docker Images
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
     paths:
       - "SAF.Web/**"
       - ".github/workflows/docker-publish.yml"
@@ -39,5 +39,5 @@ jobs:
           context: ${{ matrix.context }}
           push: true
           tags: |
-            kruacent/saf-${{ matrix.name }}:latest
+            kruacent/saf-${{ matrix.name }}:${{ github.ref_name == 'main' && 'latest' || github.ref_name }}
             kruacent/saf-${{ matrix.name }}:${{ github.sha }}
