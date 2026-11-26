@@ -132,7 +132,7 @@ namespace ServerAchievementFramework.API.Utils
             {
                 using (MySqlCommand cmd = GetMySqlCommand())
                 {
-                    cmd.CommandText = "insert into PlayersAchievement VALUES (@value1,@value2,@value3,@value4,@value5);";
+                    cmd.CommandText = "insert into PlayersAchievement (aPlayer, aPlayerAuth, AchievementId, aAchievementPlugin, progress) VALUES (@value1,@value2,@value3,@value4,@value5);";
                     cmd.Parameters.AddWithValue("@value1", info.UserId);
                     cmd.Parameters.AddWithValue("@value2", info.AuthType);
                     cmd.Parameters.AddWithValue("@value3", achievement.Id);
@@ -149,7 +149,6 @@ namespace ServerAchievementFramework.API.Utils
                         cmd.Parameters.AddWithValue("@value5", 1);
                     }
 
-                    
                     cmd.ExecuteNonQuery();
                 }
                 return true;
@@ -188,7 +187,7 @@ namespace ServerAchievementFramework.API.Utils
             try
             {
                 using MySqlCommand cmd = GetMySqlCommand();
-                cmd.CommandText = "insert into PlayersAchievement VALUES (@value1,@value2,@value3,@value4,@value5) ON DUPLICATE KEY UPDATE progress = VALUES(progress);";
+                cmd.CommandText = "insert into PlayersAchievement (aPlayer, aPlayerAuth, AchievementId, aAchievementPlugin, progress) VALUES (@value1,@value2,@value3,@value4,@value5) ON DUPLICATE KEY UPDATE progress = VALUES(progress);";
                 cmd.Parameters.AddWithValue("@value1", info.UserId);
                 cmd.Parameters.AddWithValue("@value2", info.AuthType);
                 cmd.Parameters.AddWithValue("@value3", achievement.Id);
@@ -221,19 +220,21 @@ namespace ServerAchievementFramework.API.Utils
             {
                 using (MySqlCommand cmd = GetMySqlCommand())
                 {
-                    cmd.CommandText = "insert ignore into Achievements VALUES (@value1,@value2,@value3,@value4) ON DUPLICATE KEY UPDATE target = VALUES(target);";
+                    cmd.CommandText = "insert ignore into Achievements VALUES (@value1,@value2,@value3,@value4,@value5,@value6) ON DUPLICATE KEY UPDATE target = VALUES(target);";
 
                     cmd.Parameters.AddWithValue("@value1", achievement.Id);
                     cmd.Parameters.AddWithValue("@value2", achievement.PrefixPlugin);
                     cmd.Parameters.AddWithValue("@value3", achievement.Name);
-                    
-                    if(achievement is CounterAchievement ca)
+                    cmd.Parameters.AddWithValue("@value4", achievement.Description);
+                    cmd.Parameters.AddWithValue("@value5", achievement.IsHidden);
+
+                    if (achievement is CounterAchievement ca)
                     {
-                        cmd.Parameters.AddWithValue("@value4", ca.Objective);
+                        cmd.Parameters.AddWithValue("@value6", ca.Objective);
                     }
                     else
                     {
-                        cmd.Parameters.AddWithValue("@value4", 1);
+                        cmd.Parameters.AddWithValue("@value6", 1);
                     }
 
 
