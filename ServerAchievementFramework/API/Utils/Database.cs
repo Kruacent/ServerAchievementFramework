@@ -330,7 +330,7 @@ namespace ServerAchievementFramework.API.Utils
 
             private PlayerInfo(Player p)
             {
-                UserId = p.UserId.Remove(p.UserId.LastIndexOf('@') - 1);
+                UserId = p.UserId.Remove(p.UserId.LastIndexOf('@'));
                 authType = p.AuthenticationType;
             }
 
@@ -364,7 +364,8 @@ namespace ServerAchievementFramework.API.Utils
             /// <returns>the <see cref="Player"/> only if it's connected and verified; null otherwise</returns>
             internal Player GetPlayer()
             {
-                return Player.Enumerable.FirstOrDefault(a => a.UserId == UserId);
+                return Player.Enumerable.FirstOrDefault(a =>
+                    a.AuthenticationType == authType && a.UserId.Remove(a.UserId.LastIndexOf('@')) == UserId);
             }
         }
     }
