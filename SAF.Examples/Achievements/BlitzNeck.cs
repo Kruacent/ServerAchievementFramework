@@ -46,7 +46,7 @@ namespace SAF.Examples.Achievements
             Player attacker = ev.Attacker;
 
             if (attacker == null) return;
-            if (CheckRole(attacker)) return;
+            if (!CheckRole(attacker)) return;
             if (!time.ContainsKey(attacker))
             {
                 time[attacker] = new LastPlayerKill(attacker);
