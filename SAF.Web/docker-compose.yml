@@ -2,7 +2,7 @@ name: saf
 
 services:
   db:
-    image: mysql:8.4
+    image: kruacent/saf-db:${SAF_TAG:-latest}
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in .env}
@@ -11,7 +11,6 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
     volumes:
       - db-data:/var/lib/mysql
-      - ./Database/Schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     ports:
       - "${DB_BIND:-127.0.0.1}:${DB_PORT:-3306}:3306"
     healthcheck:
@@ -22,7 +21,7 @@ services:
       start_period: 30s
 
   api:
-    build: ./Server
+    image: kruacent/saf-api:${SAF_TAG:-latest}
     restart: unless-stopped
     depends_on:
       db:
@@ -40,7 +39,7 @@ services:
       - "${API_BIND:-127.0.0.1}:${API_PORT:-5000}:5000"
 
   web:
-    build: ./Client
+    image: kruacent/saf-web:${SAF_TAG:-latest}
     restart: unless-stopped
     depends_on:
       - api

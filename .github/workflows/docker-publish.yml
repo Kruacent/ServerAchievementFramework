@@ -1,12 +1,28 @@
-name: Build and Push Docker Image
+name: Build and Push Docker Images
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
+    paths:
+      - "SAF.Web/**"
+      - ".github/workflows/docker-publish.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: db
+            context: SAF.Web/Database
+          - name: api
+            context: SAF.Web/Server
+          - name: web
+            context: SAF.Web/Client
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,9 +33,11 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+      - name: Build and push ${{ matrix.name }}
+        uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ${{ matrix.context }}
           push: true
-          tags: kruacent/saf:latest
+          tags: |
+            kruacent/saf-${{ matrix.name }}:${{ github.ref_name == 'main' && 'latest' || github.ref_name }}
+            kruacent/saf-${{ matrix.name }}:${{ github.sha }}
